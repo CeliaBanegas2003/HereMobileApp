@@ -12,10 +12,12 @@ public class UsuarioBBDD {
 
     private final UsuarioRepository repo;
     private final JdbcTemplate jdbcTemplate;
+    private final AsistenciaBBDD asistenciaBBDD;
 
-    public UsuarioBBDD(UsuarioRepository repo, JdbcTemplate jdbcTemplate) {
+    public UsuarioBBDD(UsuarioRepository repo, JdbcTemplate jdbcTemplate, AsistenciaBBDD asistenciaBBDD) {
         this.repo = repo;
         this.jdbcTemplate = jdbcTemplate;
+        this.asistenciaBBDD = asistenciaBBDD;
     }
 
     public UsuarioDTO getByEmail(String email) {
@@ -28,8 +30,13 @@ public class UsuarioBBDD {
         return UsuarioDTO.fromUsuario(u);
     }
 
-    public void registrarMifare(String uidMifare) {
+    public void registrarMifare(String uidMifare, String emailUsuario) {
         try {
+            // Verificar si el usuario que solicita el registro es administrador
+            if (!asistenciaBBDD.esUsuarioAdmin(emailUsuario)) {
+                throw new RuntimeException("No tiene permisos para registrar tarjetas. Solo los administradores pueden realizar esta acción.");
+            }
+
             // Verificar si la tarjeta ya existe
             if (existeTarjetaMifare(uidMifare)) {
                 throw new RuntimeException("La tarjeta ya está registrada en el sistema");

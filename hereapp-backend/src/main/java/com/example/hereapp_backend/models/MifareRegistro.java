@@ -2,12 +2,15 @@ package com.example.hereapp_backend.models;
 
 public class MifareRegistro {
     private String uidMifare;
+    private String emailUsuario;
 
-    // Constructores
+    // Constructor por defecto
     public MifareRegistro() {}
 
-    public MifareRegistro(String uidMifare) {
+    // Constructor con parámetros
+    public MifareRegistro(String uidMifare, String emailUsuario) {
         this.uidMifare = uidMifare;
+        this.emailUsuario = emailUsuario;
     }
 
     // Getters y setters
@@ -17,5 +20,13 @@ public class MifareRegistro {
 
     public void setUidMifare(String uidMifare) {
         this.uidMifare = uidMifare;
+    }
+
+    public String getEmailUsuario() {
+        return emailUsuario;
+    }
+
+    public void setEmailUsuario(String emailUsuario) {
+        this.emailUsuario = emailUsuario;
     }
 }
