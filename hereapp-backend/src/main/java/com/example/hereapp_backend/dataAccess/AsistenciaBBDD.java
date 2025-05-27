@@ -2,8 +2,6 @@ package com.example.hereapp_backend.dataAccess;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
@@ -25,25 +23,47 @@ public class AsistenciaBBDD {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // Método para verificar si un usuario es administrador (para uso en otros controladores)
+    public boolean esUsuarioAdmin(String emailUsuario) {
+        try {
+            Integer userId = obtenerUsuarioId(emailUsuario);
+            if (userId == null) {
+                return false;
+            }
+
+            return tieneRol(userId, "ADMIN");
+        } catch (Exception e) {
+            System.err.println("Error verificando si usuario es admin: " + e.getMessage());
+            return false;
+        }
+    }
+
     public String procesarAsistenciaNFC(String uidMifare, String emailUsuario) {
         // 1. Verificar que la tarjeta esté registrada
         if (!existeTarjetaMifare(uidMifare)) {
             throw new RuntimeException("La tarjeta no está registrada en el sistema");
         }
 
-        // 2. Obtener el usuario y determinar el rol
+        // 2. Obtener el usuario y la tarjeta
         Integer userId = obtenerUsuarioId(emailUsuario);
         if (userId == null) {
             throw new RuntimeException("Usuario no encontrado");
         }
 
-        String rol = determinarRolUsuario(emailUsuario);
+        Integer tarjetaId = obtenerTarjetaId(uidMifare);
+        if (tarjetaId == null) {
+            throw new RuntimeException("Error obteniendo ID de tarjeta");
+        }
 
-        // 3. Procesar según el rol
-        if ("alumno".equals(rol)) {
-            return procesarAlumno(userId);
-        } else if ("profesor".equals(rol)) {
-            return procesarProfesor(userId);
+        // 3. Determinar cómo procesar según los roles del usuario
+        // Prioridad: Si tiene rol PROFESOR (aunque también tenga ADMIN), procesar como profesor
+        if (tieneRol(userId, "PROFESOR")) {
+            return procesarProfesor(userId, tarjetaId);
+        } else if (tieneRol(userId, "ALUMNO")) {
+            return procesarAlumno(userId, tarjetaId);
+        } else if (tieneRol(userId, "ADMIN")) {
+            // Solo admin sin otros roles
+            return "Usuario administrador: utilice la función de registro de tarjetas";
         } else {
             return "Rol no reconocido para el procesamiento de asistencia";
         }
@@ -53,7 +73,7 @@ public class AsistenciaBBDD {
         try {
             String sql = "SELECT COUNT(*) FROM tarjetas_mifare WHERE uid_mifare = ?";
             Integer count = jdbcTemplate.queryForObject(sql, Integer.class, uidMifare);
-            return count != null && count > 0;
+            return count > 0;
         } catch (Exception e) {
             return false;
         }
@@ -68,21 +88,95 @@ public class AsistenciaBBDD {
         }
     }
 
+    private Integer obtenerTarjetaId(String uidMifare) {
+        try {
+            String sql = "SELECT tarjeta_id FROM tarjetas_mifare WHERE uid_mifare = ?";
+            return jdbcTemplate.queryForObject(sql, Integer.class, uidMifare);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-    private String procesarAlumno(Integer alumnoId) {
-        // Verificar que el usuario tenga rol alumno
-        String sql = "SELECT COUNT(*) FROM usuario_roles ur JOIN rol r ON ur.roles_rol = r.rol WHERE ur.usuario_usuario_id = ? AND r.rol = 'ALUMNO'";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, alumnoId);
-        if (count == null || count == 0) {
+    // Método mejorado para verificar si un usuario tiene un rol específico
+    private boolean tieneRol(Integer userId, String rolNombre) {
+        try {
+            String sql = """
+                SELECT COUNT(*) 
+                FROM usuario_roles ur 
+                WHERE ur.usuario_id = ? AND ur.rol_nombre = ?
+                """;
+
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId, rolNombre);
+            return count > 0;
+        } catch (Exception e) {
+            System.err.println("Error verificando rol " + rolNombre + " para usuario " + userId + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Método corregido para determinar el rol del usuario basado en la estructura real de BD
+    private String determinarRolUsuario(Integer userId) {
+        try {
+            // Consultar los roles desde la tabla usuario_roles usando la estructura correcta del diagrama
+            String sql = """
+                SELECT ur.rol_nombre
+                FROM usuario_roles ur 
+                WHERE ur.usuario_id = ?
+                """;
+
+            List<Map<String, Object>> rolesResult = jdbcTemplate.queryForList(sql, userId);
+
+            // Verificar cada rol encontrado - prioridad: PROFESOR > ALUMNO > ADMIN
+            boolean esProfesor = false;
+            boolean esAlumno = false;
+            boolean esAdmin = false;
+
+            for (Map<String, Object> row : rolesResult) {
+                String rolNombre = (String) row.get("rol_nombre");
+                if (rolNombre != null) {
+                    switch (rolNombre.toUpperCase()) {
+                        case "PROFESOR":
+                            esProfesor = true;
+                            break;
+                        case "ALUMNO":
+                            esAlumno = true;
+                            break;
+                        case "ADMIN":
+                            esAdmin = true;
+                            break;
+                    }
+                }
+            }
+
+            // Devolver el rol prioritario para procesamiento de asistencia
+            if (esProfesor) {
+                return "profesor";
+            } else if (esAlumno) {
+                return "alumno";
+            } else if (esAdmin) {
+                return "admin";
+            }
+
+            return "otro";
+
+        } catch (Exception e) {
+            System.err.println("Error determinando rol del usuario " + userId + ": " + e.getMessage());
+            return "otro";
+        }
+    }
+
+    private String procesarAlumno(Integer alumnoId, Integer tarjetaId) {
+        // Verificar que el usuario tenga rol alumno (verificación adicional por seguridad)
+        if (!tieneRol(alumnoId, "ALUMNO")) {
             return "No se encontró alumno con ese ID";
         }
 
-        // Buscar registro existente de hoy sin hora_salida_alumno
-        sql = """
+        // CORRECCIÓN: Cambiar alumno_id por usuario_id en la consulta
+        String sql = """
             SELECT asistencia_alumno_id, sesion_id, hora_entrada_alumno, tipo_asistencia_id
             FROM asistencia_alumno
-            WHERE alumno_id = ?
-              AND fecha_asistencia_alumno = CURDATE()
+            WHERE usuario_id = ?
+              AND fecha_asistencia_alumno = DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))
               AND hora_salida_alumno IS NULL
             ORDER BY asistencia_alumno_id DESC
             LIMIT 1
@@ -91,7 +185,7 @@ public class AsistenciaBBDD {
         List<Map<String, Object>> asistencias = jdbcTemplate.queryForList(sql, alumnoId);
 
         if (!asistencias.isEmpty()) {
-            Map<String, Object> asistencia = asistencias.get(0);
+            Map<String, Object> asistencia = asistencias.getFirst();
             Long asistenciaId = ((Number) asistencia.get("asistencia_alumno_id")).longValue();
             Object horaEntrada = asistencia.get("hora_entrada_alumno");
             Object sesionId = asistencia.get("sesion_id");
@@ -100,10 +194,11 @@ public class AsistenciaBBDD {
             if (horaEntrada == null) {
                 jdbcTemplate.update("""
                     UPDATE asistencia_alumno
-                    SET hora_entrada_alumno = CURTIME(),
-                        tipo_asistencia_id = 5
+                    SET hora_entrada_alumno = TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')),
+                        tipo_asistencia_id = 5,
+                        tarjeta_id = ?
                     WHERE asistencia_alumno_id = ?
-                    """, asistenciaId);
+                    """, tarjetaId, asistenciaId);
                 return "Entrada registrada correctamente";
             }
 
@@ -113,7 +208,7 @@ public class AsistenciaBBDD {
                 // Cerrar asistencia
                 jdbcTemplate.update("""
                     UPDATE asistencia_alumno
-                    SET hora_salida_alumno = CURTIME()
+                    SET hora_salida_alumno = TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))
                     WHERE asistencia_alumno_id = ?
                     """, asistenciaId);
 
@@ -128,26 +223,24 @@ public class AsistenciaBBDD {
             }
         }
 
-        // Crear nuevo registro de entrada
+        // CORRECCIÓN: Cambiar alumno_id por usuario_id en el INSERT
         jdbcTemplate.update("""
             INSERT INTO asistencia_alumno
-            (alumno_id, fecha_asistencia_alumno, hora_entrada_alumno, tipo_asistencia_id)
-            VALUES (?, CURDATE(), CURTIME(), 5)
-            """, alumnoId);
+            (usuario_id, fecha_asistencia_alumno, hora_entrada_alumno, tipo_asistencia_id, tarjeta_id)
+            VALUES (?, DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')), TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')), 5, ?)
+            """, alumnoId, tarjetaId);
 
         return "Nueva entrada registrada";
     }
 
-    private String procesarProfesor(Integer profesorId) {
+    private String procesarProfesor(Integer profesorId, Integer tarjetaId) {
         // Verificar que el usuario tenga rol profesor
-        String sql = "SELECT COUNT(*) FROM usuario WHERE usuario_id = ? AND roles LIKE '%PROFESOR%'";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, profesorId);
-        if (count == null || count == 0) {
+        if (!tieneRol(profesorId, "PROFESOR")) {
             return "No se encontró profesor con ese ID";
         }
 
         // Verificar sesión abierta del profesor
-        sql = """
+        String sql = """
             SELECT sesion_id, asignatura_id, grupo_id, fecha_creacion
             FROM sesion
             WHERE profesor_id = ?
@@ -159,7 +252,7 @@ public class AsistenciaBBDD {
         List<Map<String, Object>> sesiones = jdbcTemplate.queryForList(sql, profesorId);
 
         if (!sesiones.isEmpty()) {
-            Map<String, Object> sesion = sesiones.get(0);
+            Map<String, Object> sesion = sesiones.getFirst();
             Integer sesionId = (Integer) sesion.get("sesion_id");
             Integer asignaturaId = (Integer) sesion.get("asignatura_id");
             Integer grupoId = (Integer) sesion.get("grupo_id");
@@ -171,7 +264,7 @@ public class AsistenciaBBDD {
                 // Cerrar sesión
                 jdbcTemplate.update("""
                     UPDATE sesion
-                    SET hora_salida_profesor = CURTIME()
+                    SET hora_salida_profesor = TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))
                     WHERE sesion_id = ?
                     """, sesionId);
 
@@ -185,42 +278,57 @@ public class AsistenciaBBDD {
         }
 
         // Crear nueva sesión
-        return crearNuevaSesion(profesorId);
+        return crearNuevaSesion(profesorId, tarjetaId);
     }
 
-    private String crearNuevaSesion(Integer profesorId) {
+    private String crearNuevaSesion(Integer profesorId, Integer tarjetaId) {
         String diaSemana = obtenerDiaSemana();
         LocalTime horaActual = LocalTime.now();
 
+        // Debug: mostrar valores actuales
+        System.out.println("Creando nueva sesión para profesor: " + profesorId);
+        System.out.println("Día de la semana: " + diaSemana);
+        System.out.println("Hora actual: " + horaActual);
+
         // Buscar asignatura en horario ±20 minutos
         String sql = """
-            SELECT asignatura_id, grupo_id
+            SELECT horario_id, asignatura_id, grupo_id, hora_inicio, hora_fin
             FROM horario
             WHERE profesor_id = ?
               AND dia_semana = ?
-              AND TIME(hora_inicio) BETWEEN SUBTIME(?, '00:20:00') AND ADDTIME(?, '00:20:00')
+              AND TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')) BETWEEN SUBTIME(hora_inicio, '00:20:00') AND ADDTIME(hora_inicio, '00:20:00')
             LIMIT 1
             """;
 
         List<Map<String, Object>> horarios = jdbcTemplate.queryForList(sql,
-                profesorId, diaSemana, horaActual, horaActual);
+                profesorId, diaSemana);
 
         if (horarios.isEmpty()) {
+            System.out.println("No se encontraron horarios para profesor " + profesorId +
+                    " en día " + diaSemana + " cerca de la hora " + horaActual);
+
+            // Query adicional para debug - mostrar todos los horarios del profesor
+            String debugSql = "SELECT * FROM horario WHERE profesor_id = ?";
+            List<Map<String, Object>> todosHorarios = jdbcTemplate.queryForList(debugSql, profesorId);
+            System.out.println("Horarios del profesor " + profesorId + ": " + todosHorarios);
+
             return "No hay clase programada para este horario";
         }
 
-        Map<String, Object> horario = horarios.get(0);
+        Map<String, Object> horario = horarios.getFirst();
         Integer asignaturaId = (Integer) horario.get("asignatura_id");
         Integer grupoId = (Integer) horario.get("grupo_id");
 
-        // Crear sesión
+        System.out.println("Horario encontrado: " + horario);
+
+        // Crear sesión con usuario_id y tarjeta_id usando zona horaria correcta
         sql = """
             INSERT INTO sesion
-            (fecha_creacion, profesor_id, hora_entrada_profesor, asignatura_id, grupo_id)
-            VALUES (CURDATE(), ?, CURTIME(), ?, ?)
+            (fecha_creacion, usuario_id, profesor_id, hora_entrada_profesor, asignatura_id, grupo_id, tarjeta_id)
+            VALUES (DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')), ?, ?, TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')), ?, ?, ?)
             """;
 
-        jdbcTemplate.update(sql, profesorId, asignaturaId, grupoId);
+        jdbcTemplate.update(sql, profesorId, profesorId, asignaturaId, grupoId, tarjetaId);
 
         // Obtener el ID de la sesión creada
         Integer nuevaSesionId = jdbcTemplate.queryForObject(
@@ -233,44 +341,83 @@ public class AsistenciaBBDD {
     }
 
     private void crearRegistrosAlumnosMatriculados(Integer sesionId, Integer asignaturaId, Integer grupoId) {
-        // Obtener alumnos matriculados
-        String sql = "SELECT alumno_id FROM matricula WHERE asignatura_id = ? AND grupo_id = ?";
-        List<Map<String, Object>> matriculados = jdbcTemplate.queryForList(sql, asignaturaId, grupoId);
+        try {
+            // Obtener alumnos matriculados
+            String sql = "SELECT usuario_id FROM matricula WHERE asignatura_id = ? AND grupo_id = ?";
+            List<Map<String, Object>> matriculados = jdbcTemplate.queryForList(sql, asignaturaId, grupoId);
 
-        for (Map<String, Object> matricula : matriculados) {
-            Integer alumnoId = (Integer) matricula.get("alumno_id");
+            System.out.println("Alumnos matriculados encontrados: " + matriculados.size());
 
-            // Verificar si ya existe registro para hoy
-            String checkSql = """
-                SELECT asistencia_alumno_id, sesion_id 
-                FROM asistencia_alumno 
-                WHERE alumno_id = ? AND fecha_asistencia_alumno = CURDATE() 
-                ORDER BY asistencia_alumno_id DESC LIMIT 1
-                """;
+            for (Map<String, Object> matricula : matriculados) {
+                Integer alumnoId = (Integer) matricula.get("usuario_id");
 
-            List<Map<String, Object>> existentes = jdbcTemplate.queryForList(checkSql, alumnoId);
+                // Buscar CUALQUIER registro del alumno de hoy, sin importar si tiene entrada o no
+                String checkSql = """
+                    SELECT asistencia_alumno_id, sesion_id, hora_entrada_alumno, asignatura_id, grupo_id 
+                    FROM asistencia_alumno 
+                    WHERE usuario_id = ? 
+                      AND fecha_asistencia_alumno = DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))
+                    ORDER BY asistencia_alumno_id DESC
+                    """;
 
-            if (!existentes.isEmpty()) {
-                Map<String, Object> existente = existentes.get(0);
-                Long asistenciaId = ((Number) existente.get("asistencia_alumno_id")).longValue();
-                Object sesionIdExistente = existente.get("sesion_id");
+                List<Map<String, Object>> existentes = jdbcTemplate.queryForList(checkSql, alumnoId);
 
-                // Actualizar solo si no tiene sesión asignada
-                if (sesionIdExistente == null) {
-                    jdbcTemplate.update("""
-                        UPDATE asistencia_alumno 
-                        SET sesion_id = ?, asignatura_id = ?, grupo_id = ? 
-                        WHERE asistencia_alumno_id = ?
-                        """, sesionId, asignaturaId, grupoId, asistenciaId);
+                boolean registroActualizado = false;
+
+                // Buscar si ya existe un registro que podamos actualizar
+                for (Map<String, Object> existente : existentes) {
+                    Long asistenciaId = ((Number) existente.get("asistencia_alumno_id")).longValue();
+                    Object sesionIdExistente = existente.get("sesion_id");
+                    Object asignaturaIdExistente = existente.get("asignatura_id");
+                    Object grupoIdExistente = existente.get("grupo_id");
+
+                    // Si el registro no tiene sesión asignada O si es de la misma asignatura/grupo
+                    if (sesionIdExistente == null ||
+                            (asignaturaId.equals(asignaturaIdExistente) && grupoId.equals(grupoIdExistente))) {
+
+                        // Actualizar el registro existente
+                        jdbcTemplate.update("""
+                            UPDATE asistencia_alumno 
+                            SET sesion_id = ?, asignatura_id = ?, grupo_id = ? 
+                            WHERE asistencia_alumno_id = ?
+                            """, sesionId, asignaturaId, grupoId, asistenciaId);
+
+                        registroActualizado = true;
+                        System.out.println("Actualizado registro existente para alumno " + alumnoId);
+                        break;
+                    }
                 }
-            } else {
-                // Crear nuevo registro con tipo_asistencia_id = 2 (no asiste)
-                jdbcTemplate.update("""
-                    INSERT INTO asistencia_alumno 
-                    (alumno_id, asignatura_id, grupo_id, sesion_id, fecha_asistencia_alumno, tipo_asistencia_id) 
-                    VALUES (?, ?, ?, ?, CURDATE(), 2)
-                    """, alumnoId, asignaturaId, grupoId, sesionId);
+
+                // Solo crear nuevo registro si no se actualizó ninguno existente
+                if (!registroActualizado) {
+                    // Verificar que no exista ya un registro para esta sesión específica
+                    String checkDuplicadoSql = """
+                        SELECT COUNT(*) 
+                        FROM asistencia_alumno 
+                        WHERE usuario_id = ? 
+                          AND sesion_id = ?
+                          AND fecha_asistencia_alumno = DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))
+                        """;
+
+                    Integer countDuplicado = jdbcTemplate.queryForObject(checkDuplicadoSql, Integer.class,
+                            alumnoId, sesionId);
+
+                    if (countDuplicado == null || countDuplicado == 0) {
+                        // Crear nuevo registro solo si no existe uno para esta sesión
+                        jdbcTemplate.update("""
+                            INSERT INTO asistencia_alumno 
+                            (usuario_id, asignatura_id, grupo_id, sesion_id, fecha_asistencia_alumno, tipo_asistencia_id) 
+                            VALUES (?, ?, ?, ?, DATE(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')), 2)
+                            """, alumnoId, asignaturaId, grupoId, sesionId);
+
+                        System.out.println("Creado nuevo registro para alumno " + alumnoId);
+                    }
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Error creando registros de alumnos matriculados: " + e.getMessage());
+            e.printStackTrace();
+            // No lanzar la excepción para que no afecte a la creación de sesión
         }
     }
 
@@ -278,7 +425,7 @@ public class AsistenciaBBDD {
         String sql = """
             SELECT TIMESTAMPDIFF(MINUTE, 
                 CONCAT(fecha_asistencia_alumno, ' ', hora_entrada_alumno), 
-                NOW()) AS diffMin 
+                CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')) AS diffMin 
             FROM asistencia_alumno 
             WHERE asistencia_alumno_id = ?
             """;
@@ -290,7 +437,7 @@ public class AsistenciaBBDD {
         String sql = """
             SELECT TIMESTAMPDIFF(MINUTE, 
                 CONCAT(fecha_creacion, ' ', hora_entrada_profesor), 
-                NOW()) AS diffMin 
+                CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid')) AS diffMin 
             FROM sesion 
             WHERE sesion_id = ?
             """;
@@ -308,7 +455,7 @@ public class AsistenciaBBDD {
             if (horaSalidaProfesor != null) {
                 // Verificar si la salida del alumno fue dentro de los 15 minutos
                 String diffSql = """
-                    SELECT TIMESTAMPDIFF(MINUTE, ?, NOW()) AS diffMin
+                    SELECT TIMESTAMPDIFF(MINUTE, ?, TIME(CONVERT_TZ(NOW(), 'UTC', 'Europe/Madrid'))) AS diffMin
                     """;
                 Integer diffMin = jdbcTemplate.queryForObject(diffSql, Integer.class, horaSalidaProfesor);
 
@@ -443,32 +590,37 @@ public class AsistenciaBBDD {
 
     private void insertarNoAsistencias(Integer sesionId, Integer asignaturaId,
                                        Integer grupoId, LocalDate fechaCreacion) {
-        // Obtener alumnos matriculados
-        String sql = "SELECT alumno_id FROM matricula WHERE asignatura_id = ? AND grupo_id = ?";
-        List<Map<String, Object>> matriculados = jdbcTemplate.queryForList(sql, asignaturaId, grupoId);
+        try {
+            // Obtener alumnos matriculados
+            String sql = "SELECT usuario_id FROM matricula WHERE asignatura_id = ? AND grupo_id = ?";
+            List<Map<String, Object>> matriculados = jdbcTemplate.queryForList(sql, asignaturaId, grupoId);
 
-        for (Map<String, Object> matricula : matriculados) {
-            Integer alumnoId = (Integer) matricula.get("alumno_id");
+            for (Map<String, Object> matricula : matriculados) {
+                Integer alumnoId = (Integer) matricula.get("usuario_id");
 
-            // Verificar si ya tiene registro para este día
-            String checkSql = """
-                SELECT COUNT(*) FROM asistencia_alumno 
-                WHERE alumno_id = ? 
-                  AND asignatura_id = ? 
-                  AND grupo_id = ? 
-                  AND DATE(fecha_asistencia_alumno) = ?
-                """;
-            Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
-                    alumnoId, asignaturaId, grupoId, fechaCreacion);
+                // CORRECCIÓN: Cambiar alumno_id por usuario_id en la consulta
+                String checkSql = """
+                    SELECT COUNT(*) FROM asistencia_alumno 
+                    WHERE usuario_id = ? 
+                      AND asignatura_id = ? 
+                      AND grupo_id = ? 
+                      AND DATE(fecha_asistencia_alumno) = ?
+                    """;
+                Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
+                        alumnoId, asignaturaId, grupoId, fechaCreacion);
 
-            if (count == null || count == 0) {
-                // Insertar registro de no asistencia
-                jdbcTemplate.update("""
-                    INSERT INTO asistencia_alumno 
-                    (alumno_id, asignatura_id, grupo_id, sesion_id, fecha_asistencia_alumno, tipo_asistencia_id) 
-                    VALUES (?, ?, ?, ?, ?, 2)
-                    """, alumnoId, asignaturaId, grupoId, sesionId, fechaCreacion);
+                if (count == null || count == 0) {
+                    // CORRECCIÓN: Cambiar alumno_id por usuario_id en el INSERT
+                    jdbcTemplate.update("""
+                        INSERT INTO asistencia_alumno 
+                        (usuario_id, asignatura_id, grupo_id, sesion_id, fecha_asistencia_alumno, tipo_asistencia_id) 
+                        VALUES (?, ?, ?, ?, ?, 2)
+                        """, alumnoId, asignaturaId, grupoId, sesionId, fechaCreacion);
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Error insertando no asistencias: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
