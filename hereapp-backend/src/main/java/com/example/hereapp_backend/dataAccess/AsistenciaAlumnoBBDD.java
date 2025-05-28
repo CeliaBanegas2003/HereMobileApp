@@ -208,15 +208,15 @@ public class AsistenciaAlumnoBBDD {
                                                  Integer grupoId, LocalDate fechaCreacion, Object horaSalidaProfesor) {
         // Obtener asistencias completadas que necesitan clasificación
         String sql = """
-        SELECT asistencia_alumno_id, hora_salida_alumno
-        FROM asistencia_alumno
-        WHERE fecha_asistencia_alumno = ?
-          AND asignatura_id = ?
-          AND grupo_id = ?
-          AND hora_entrada_alumno IS NOT NULL
-          AND hora_salida_alumno IS NOT NULL
-          AND tipo_asistencia_id = 5
-        """;
+            SELECT asistencia_alumno_id, hora_salida_alumno
+            FROM asistencia_alumno
+            WHERE fecha_asistencia_alumno = ?
+              AND asignatura_id = ?
+              AND grupo_id = ?
+              AND hora_entrada_alumno IS NOT NULL
+              AND hora_salida_alumno IS NOT NULL
+              AND tipo_asistencia_id = 5
+            """;
 
         List<Map<String, Object>> asistencias = jdbcTemplate.queryForList(sql,
                 fechaCreacion, asignaturaId, grupoId);
@@ -226,10 +226,10 @@ public class AsistenciaAlumnoBBDD {
             Object horaSalidaAlumno = asistencia.get("hora_salida_alumno");
 
             if (horaSalidaAlumno != null && horaSalidaProfesor != null) {
-                // Calcular diferencia en segundos y convertir a minutos
+                // Calcular diferencia en minutos
                 String diffSql = """
-                SELECT ABS(TIME_TO_SEC(?) - TIME_TO_SEC(?)) / 60 AS diffMin
-                """;
+                    SELECT ABS(TIMESTAMPDIFF(MINUTE, ?, ?)) AS diffMin
+                    """;
                 Integer diffMin = jdbcTemplate.queryForObject(diffSql, Integer.class,
                         horaSalidaProfesor, horaSalidaAlumno);
 
@@ -275,17 +275,16 @@ public class AsistenciaAlumnoBBDD {
     public void marcarAsistenciasInmediatas(Integer sesionId, Integer asignaturaId,
                                             Integer grupoId, LocalDate fechaCreacion, Object horaSalidaProfesor) {
         if (horaSalidaProfesor != null) {
-            // Marcar como asiste si salieron ≤15 min antes del profesor
+            // Marcar como asiste si salieron ≤15 min antes
             String updateSql = """
-            UPDATE asistencia_alumno 
-            SET tipo_asistencia_id = 1, sesion_id = ?
-            WHERE fecha_asistencia_alumno = ?
-              AND asignatura_id = ?
-              AND grupo_id = ?
-              AND hora_salida_alumno IS NOT NULL
-              AND TIME_TO_SEC(hora_salida_alumno) >= TIME_TO_SEC(?) - 900
-            """;
-            // 900 segundos = 15 minutos
+                UPDATE asistencia_alumno 
+                SET tipo_asistencia_id = 1, sesion_id = ?
+                WHERE fecha_asistencia_alumno = ?
+                  AND asignatura_id = ?
+                  AND grupo_id = ?
+                  AND hora_salida_alumno IS NOT NULL
+                  AND TIMESTAMPDIFF(MINUTE, ?, hora_salida_alumno) >= -15
+                """;
             jdbcTemplate.update(updateSql, sesionId, fechaCreacion, asignaturaId, grupoId, horaSalidaProfesor);
         }
     }
