@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba" />
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba3">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -136,7 +138,7 @@
       <option name="presentableId" value="Default" />
       <updated>1744630176956</updated>
       <workItem from="1744630178066" duration="195000" />
-      <workItem from="1748448319842" duration="4202000" />
+      <workItem from="1748448319842" duration="4508000" />
     </task>
     <task id="LOCAL-00001" summary="frontend incluido">
       <option name="closed" value="true" />
@@ -202,7 +204,23 @@
       <option name="project" value="LOCAL" />
       <updated>1748455153954</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Despliegue prueba2">
+      <option name="closed" value="true" />
+      <created>1748455325940</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1748455325940</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Despliegue prueba3">
+      <option name="closed" value="true" />
+      <created>1748455345229</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1748455345229</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -229,6 +247,8 @@
     <MESSAGE value="Apk accesible" />
     <MESSAGE value="Ci-DC" />
     <MESSAGE value="Despliegue prueba" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba" />
+    <MESSAGE value="Despliegue prueba2" />
+    <MESSAGE value="Despliegue prueba3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba3" />
   </component>
 </project>
