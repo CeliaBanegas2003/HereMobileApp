@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba5" />
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba6" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -136,7 +136,7 @@
       <option name="presentableId" value="Default" />
       <updated>1744630176956</updated>
       <workItem from="1744630178066" duration="195000" />
-      <workItem from="1748448319842" duration="4758000" />
+      <workItem from="1748448319842" duration="5037000" />
     </task>
     <task id="LOCAL-00001" summary="frontend incluido">
       <option name="closed" value="true" />
@@ -234,7 +234,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748455750787</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Despliegue prueba6">
+      <option name="closed" value="true" />
+      <created>1748455821802</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1748455821802</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -265,6 +273,7 @@
     <MESSAGE value="Despliegue prueba3" />
     <MESSAGE value="Despliegue prueba4" />
     <MESSAGE value="Despliegue prueba5" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba5" />
+    <MESSAGE value="Despliegue prueba6" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba6" />
   </component>
 </project>

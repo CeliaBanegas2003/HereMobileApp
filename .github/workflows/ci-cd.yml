@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  packages: write  # permite push a registries
+  packages: write
 
 jobs:
   build-backend:
@@ -68,11 +68,12 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        working-directory: hereapp-frontend
+        # Aquí apunta a la carpeta real de tu Flutter: 'frontend'
+        working-directory: frontend
         run: flutter pub get
 
       - name: Build web
-        working-directory: hereapp-frontend
+        working-directory: frontend
         run: flutter build web --release
 
       - name: Log in to Docker Hub
@@ -87,8 +88,8 @@ jobs:
       - name: Build & Push Frontend Image
         uses: docker/build-push-action@v4
         with:
-          context: hereapp-frontend
-          file: hereapp-frontend/Dockerfile
+          context: frontend
+          file: frontend/Dockerfile
           platforms: linux/amd64
           push: true
           tags: |
