@@ -67,6 +67,7 @@ public class AsistenciaBBDD {
             return "No se encontró alumno con ese ID";
         }
 
+        // Buscar asistencia abierta del alumno (sin salida registrada)
         Map<String, Object> asistenciaAbierta = asistenciaAlumnoBBDD.obtenerAsistenciaAbierta(alumnoId);
 
         if (asistenciaAbierta != null) {
@@ -80,10 +81,10 @@ public class AsistenciaBBDD {
                 return "Entrada registrada correctamente";
             }
 
-            // Segundo pase: verificar si han pasado >= 5 minutos
+            // Segundo pase: verificar si han pasado >= 5 minutos para poder registrar salida
             int minutosDesdeEntrada = asistenciaAlumnoBBDD.calcularMinutosDesdeEntrada(asistenciaId);
             if (minutosDesdeEntrada >= 5) {
-                // Cerrar asistencia
+                // Registrar salida del alumno (NO crear registros de matriculados)
                 asistenciaAlumnoBBDD.registrarSalida(asistenciaId);
 
                 // Verificar sesión del profesor y marcar asistencia si corresponde
@@ -97,7 +98,7 @@ public class AsistenciaBBDD {
             }
         }
 
-        // Crear nueva entrada
+        // Si no hay asistencia abierta, crear nueva entrada
         asistenciaAlumnoBBDD.crearNuevaEntrada(alumnoId, tarjetaId);
         return "Nueva entrada registrada";
     }
@@ -111,6 +112,7 @@ public class AsistenciaBBDD {
         Map<String, Object> sesionAbierta = sesionBBDD.obtenerSesionAbiertaProfesor(profesorId);
 
         if (sesionAbierta != null) {
+            // CERRAR SESIÓN EXISTENTE
             Integer sesionId = (Integer) sesionAbierta.get("sesion_id");
             Integer asignaturaId = (Integer) sesionAbierta.get("asignatura_id");
             Integer grupoId = (Integer) sesionAbierta.get("grupo_id");
@@ -119,20 +121,34 @@ public class AsistenciaBBDD {
             int minutosDesdeInicio = sesionBBDD.calcularMinutosSesion(sesionId);
 
             if (minutosDesdeInicio >= 5) {
-                // Cerrar sesión
+                // Cerrar sesión del profesor
                 sesionBBDD.cerrarSesion(sesionId);
 
-                // Marcar asistencias y finalizar después de 10 minutos
+                // Marcar asistencias y programar finalización
                 marcarAsistenciasYProgramarFinalizacion(sesionId, asignaturaId, grupoId, fechaCreacion);
 
                 return "Sesión cerrada tras " + minutosDesdeInicio + " minutos";
             } else {
                 return "Sesión reciente (" + minutosDesdeInicio + " min), no se puede cerrar aún";
             }
-        }
+        } else {
+            // CREAR NUEVA SESIÓN
+            // Solo aquí se deben crear los registros de alumnos matriculados
+            String resultado = sesionBBDD.crearNuevaSesion(profesorId, tarjetaId);
 
-        // Crear nueva sesión
-        return sesionBBDD.crearNuevaSesion(profesorId, tarjetaId);
+            // Obtener la nueva sesión creada para poder crear los registros de matriculados
+            Map<String, Object> nuevaSesion = sesionBBDD.obtenerSesionAbiertaProfesor(profesorId);
+            if (nuevaSesion != null) {
+                Integer sesionId = (Integer) nuevaSesion.get("sesion_id");
+                Integer asignaturaId = (Integer) nuevaSesion.get("asignatura_id");
+                Integer grupoId = (Integer) nuevaSesion.get("grupo_id");
+
+                // SOLO cuando se crea una nueva sesión, crear registros de alumnos matriculados
+                asistenciaAlumnoBBDD.crearRegistrosAlumnosMatriculados(sesionId, asignaturaId, grupoId);
+            }
+
+            return resultado;
+        }
     }
 
     private void verificarYMarcarAsistencia(Long asistenciaId, Integer sesionId) {

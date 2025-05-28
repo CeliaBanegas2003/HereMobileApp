@@ -59,10 +59,6 @@ public class SesionBBDD {
         String diaSemana = horarioBBDD.obtenerDiaSemanaActual();
         LocalTime horaActual = LocalTime.now();
 
-        System.out.println("Creando nueva sesión para profesor: " + profesorId);
-        System.out.println("Día de la semana: " + diaSemana);
-        System.out.println("Hora actual: " + horaActual);
-
         // Buscar asignatura en horario ±20 minutos usando HorarioBBDD
         Map<String, Object> horario = horarioBBDD.buscarHorarioActual(profesorId, diaSemana);
 
@@ -88,7 +84,7 @@ public class SesionBBDD {
         // Crear registros de asistencia para alumnos matriculados
         asistenciaAlumnoBBDD.crearRegistrosAlumnosMatriculados(nuevaSesionId, asignaturaId, grupoId);
 
-        return "Nueva sesión creada con ID: " + nuevaSesionId;
+        return "Nueva sesión creada";
     }
 
     public Object obtenerHoraSalidaProfesor(Integer sesionId) {
