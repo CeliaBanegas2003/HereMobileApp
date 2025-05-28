@@ -121,7 +121,7 @@ public class AsistenciaBBDD {
             int minutosDesdeInicio = sesionBBDD.calcularMinutosSesion(sesionId);
 
             if (minutosDesdeInicio >= 5) {
-                // Cerrar sesión del profesor
+                // Cerrar sesión del profesor prueba
                 sesionBBDD.cerrarSesion(sesionId);
 
                 // Marcar asistencias y programar finalización
