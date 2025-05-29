@@ -3,9 +3,6 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/build" />
       <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/ios/.symlinks/plugins/device_info_plus/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/ios/.symlinks/plugins/device_info_plus/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/hereapp-frontend/ios/.symlinks/plugins/device_info_plus/build" />

@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  packages: write  # para poder hacer docker push
+  packages: write
 
 jobs:
   build-backend:
@@ -17,31 +17,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          submodules: false
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('hereapp-backend/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
         working-directory: hereapp-backend
         run: mvn clean package -DskipTests
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build & Push Backend Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: hereapp-backend
           file: hereapp-backend/Dockerfile
@@ -54,18 +59,24 @@ jobs:
   build-frontend:
     name: Build & Push Frontend
     runs-on: ubuntu-latest
-    needs: build-backend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          submodules: false
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-cache-${{ hashFiles('hereapp-frontend/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-cache-
 
       - name: Install dependencies
         working-directory: hereapp-frontend
@@ -76,16 +87,16 @@ jobs:
         run: flutter build web --release
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build & Push Frontend Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: hereapp-frontend
           file: hereapp-frontend/Dockerfile

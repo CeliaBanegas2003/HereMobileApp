@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba7" />
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Frontend correcto">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/HereMobileApp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/HereMobileApp.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,11 +53,10 @@
     "Docker.hereapp-backend/Dockerfile: Compose Deployment.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/celiabanegas/Documents/UFV/4 ING.INF/2 CUATRI/PFG/Software/HereMobileApp/apk",
+    "last_opened_file_path": "/Users/celiabanegas/Documents/UFV/4 ING.INF/2 CUATRI/PFG/Software/HereMobileApp/hereapp-backend",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -62,12 +66,20 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
+    ]
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/apk" />
+      <recent name="$PROJECT_DIR$/hereapp-backend" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/apk" />
     </key>
   </component>
   <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
@@ -283,6 +295,7 @@
     <MESSAGE value="Despliegue prueba5" />
     <MESSAGE value="Despliegue prueba6" />
     <MESSAGE value="Despliegue prueba7" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba7" />
+    <MESSAGE value="Frontend correcto" />
+    <option name="LAST_COMMIT_MESSAGE" value="Frontend correcto" />
   </component>
 </project>
