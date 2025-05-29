@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba con pubsec">
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba con pubsec 2">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -267,7 +268,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748535875849</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Despliegue prueba con pubsec 2">
+      <option name="closed" value="true" />
+      <created>1748536351631</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1748536351631</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -302,6 +311,7 @@
     <MESSAGE value="Despliegue prueba7" />
     <MESSAGE value="Frontend correcto" />
     <MESSAGE value="Despliegue prueba con pubsec" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba con pubsec" />
+    <MESSAGE value="Despliegue prueba con pubsec 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba con pubsec 2" />
   </component>
 </project>
