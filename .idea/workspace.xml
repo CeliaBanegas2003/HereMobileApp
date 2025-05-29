@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Frontend correcto">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/HereMobileApp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/HereMobileApp.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba con pubsec">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -262,7 +259,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748456105388</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Despliegue prueba con pubsec">
+      <option name="closed" value="true" />
+      <created>1748535875849</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1748535875849</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -296,6 +301,7 @@
     <MESSAGE value="Despliegue prueba6" />
     <MESSAGE value="Despliegue prueba7" />
     <MESSAGE value="Frontend correcto" />
-    <option name="LAST_COMMIT_MESSAGE" value="Frontend correcto" />
+    <MESSAGE value="Despliegue prueba con pubsec" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba con pubsec" />
   </component>
 </project>

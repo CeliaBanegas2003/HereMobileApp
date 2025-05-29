@@ -63,6 +63,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug - List root directory
+        run: ls -la
+
+      - name: Debug - Check if hereapp-frontend exists
+        run: |
+          if [ -d "hereapp-frontend" ]; then
+            echo "hereapp-frontend directory exists"
+            ls -la hereapp-frontend/
+          else
+            echo "hereapp-frontend directory does not exist"
+            echo "Available directories:"
+            find . -maxdepth 2 -type d
+          fi
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -80,7 +94,17 @@ jobs:
 
       - name: Install dependencies
         working-directory: hereapp-frontend
-        run: flutter pub get
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of current directory:"
+          ls -la
+          echo "Checking for pubspec.yaml:"
+          if [ -f "pubspec.yaml" ]; then
+            echo "pubspec.yaml found!"
+          else
+            echo "pubspec.yaml NOT found!"
+          fi
+          flutter pub get
 
       - name: Build web
         working-directory: hereapp-frontend
