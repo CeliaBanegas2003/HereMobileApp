@@ -1,0 +1,4 @@
+<resources>
+    <string name="servicedesc">Servicio HCE NFC</string>
+    <string name="aiddescription">Etiqueta NDEF</string>
+</resources>

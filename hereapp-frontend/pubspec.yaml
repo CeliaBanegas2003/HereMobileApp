@@ -1,0 +1,52 @@
+name: here
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_nfc_kit: ^3.3.2
+  ndef: ^0.3.4
+  flutter_nfc_hce: ^0.1.8
+  device_info_plus: ^9.0.0
+  http: ^0.13.6
+  cupertino_icons: ^1.0.8
+  flutter_animate: ^4.5.2
+  flutter_native_splash: ^2.4.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logotipo_here.png"
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icono_here.png"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/images/logotipo_here.png"
+  android_gravity: center
+  ios_content_mode: center
+  web: false
+
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/ufvFondo.png
+    - assets/images/UFVLogo.png
+    - assets/images/logotipo_here.png
