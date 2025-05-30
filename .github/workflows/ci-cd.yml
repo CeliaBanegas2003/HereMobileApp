@@ -8,8 +8,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
-  packages: write
+  contents: write
 
 jobs:
   build-backend:
@@ -56,8 +55,8 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:latest
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}
 
-  build-mobile-app:
-    name: Build Mobile APK
+  build-apk:
+    name: Build APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -69,108 +68,24 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Set up Java for Android
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-cache-${{ hashFiles('hereapp-frontend/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-cache-
-
-      - name: Install dependencies
+      - name: Build APK (simple)
         working-directory: hereapp-frontend
         run: |
-          echo "Installing Flutter dependencies..."
           flutter pub get
+          flutter build apk --debug
 
-      # - name: Analyze Flutter code
-      #   working-directory: hereapp-frontend
-      #   run: |
-      #     echo "Running Flutter analysis..."
-      #     flutter analyze --no-fatal-infos || echo "Analysis completed with warnings/infos"
-
-      # - name: Run Flutter tests
-      #   working-directory: hereapp-frontend
-      #   run: |
-      #     echo "Running Flutter tests..."
-      #     if [ -d "test" ] && [ "$(ls -A test)" ]; then
-      #       flutter test || echo "Some tests failed, but continuing build..."
-      #     else
-      #       echo "No tests found, skipping test execution"
-      #     fi
-
-      - name: Build APK
-        working-directory: hereapp-frontend
+      - name: Update APK in repo
         run: |
-          echo "Building Android APK..."
-          # Build APK sin firma para CI/CD
-          flutter build apk --release --no-shrink
-          echo "APK built successfully!"
-          ls -la build/app/outputs/flutter-apk/
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: heremobileapp-${{ github.sha }}
-          path: hereapp-frontend/build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
-
-      - name: Create Release (only on main branch)
-        if: github.ref == 'refs/heads/main'
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
-          body: |
-            🚀 Nueva versión de HereMobileApp
-            
-            **Cambios incluidos:**
-            - Backend actualizado (SHA: ${{ github.sha }})
-            - APK móvil actualizado
-            
-            **Descargas:**
-            - APK para Android disponible como artefacto
-            - Imagen Docker del backend: `${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}`
-          draft: false
-          prerelease: false
-
-  deploy-backend:
-    name: Deploy Backend
-    needs: [build-backend]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy Backend
-        run: |
-          echo "🚀 Desplegando backend..."
-          echo "Imagen Docker: ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}"
-          echo "Aquí puedes añadir tu lógica de despliegue específica"
-          # Por ejemplo:
-          # - Desplegar a AWS ECS
-          # - Actualizar Kubernetes
-          # - Usar docker-compose en servidor
-          # - Etc.
-
-  notify-success:
-    name: Notify Success
-    needs: [build-backend, build-mobile-app, deploy-backend]
-    runs-on: ubuntu-latest
-    if: success() && github.ref == 'refs/heads/main'
-    steps:
-      - name: Success Notification
-        run: |
-          echo "✅ ¡Despliegue completado exitosamente!"
-          echo "📱 APK disponible en: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          echo "🐳 Backend desplegado con imagen: ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}"
+          mkdir -p apk
+          cp hereapp-frontend/build/app/outputs/flutter-apk/app-debug.apk apk/app-release.apk
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add apk/app-release.apk
+          
+          if git diff --staged --quiet; then
+            echo "No changes to APK"
+          else
+            git commit -m "Update APK [skip ci]"
+            git push
+          fi

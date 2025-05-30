@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue del frontend corregido 2">
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue del frontend corregido 3">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -299,7 +300,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748593220630</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Despliegue del frontend corregido 3">
+      <option name="closed" value="true" />
+      <created>1748594383429</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1748594383429</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -339,6 +348,7 @@
     <MESSAGE value="Despliegue corregido para el frontend" />
     <MESSAGE value="Despliegue del frontend corregido" />
     <MESSAGE value="Despliegue del frontend corregido 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue del frontend corregido 2" />
+    <MESSAGE value="Despliegue del frontend corregido 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue del frontend corregido 3" />
   </component>
 </project>
