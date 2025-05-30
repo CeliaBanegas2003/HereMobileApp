@@ -71,6 +71,12 @@ jobs:
       - name: Build APK (simple)
         working-directory: hereapp-frontend
         run: |
+          # Crear key.properties temporal
+          echo "storePassword=android" > android/key.properties
+          echo "keyPassword=android" >> android/key.properties
+          echo "keyAlias=androiddebugkey" >> android/key.properties
+          echo "storeFile=debug.keystore" >> android/key.properties
+          
           flutter pub get
           flutter build apk --debug
 
