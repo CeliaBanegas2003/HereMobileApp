@@ -78,7 +78,8 @@ jobs:
           echo "storeFile=debug.keystore" >> android/key.properties
           
           flutter pub get
-          flutter build apk --debug
+          # Build APK optimizado para tamaño
+          flutter build apk --debug --target-platform android-arm64
 
       - name: Update APK in repo
         run: |
@@ -110,3 +111,37 @@ jobs:
           name: heremobileapp-apk-${{ github.sha }}
           path: apk/app-release.apk
           retention-days: 30
+
+      - name: Create GitHub Release with APK
+        if: github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: HereMobileApp v${{ github.run_number }}
+          body: |
+            🚀 Nueva versión de HereMobileApp
+            
+            📱 **Para instalar en Android:**
+            1. Descarga el APK desde abajo
+            2. Permite "Instalar apps de fuentes desconocidas" en Configuración
+            3. Abre el archivo descargado e instala
+            
+            **Cambios incluidos:**
+            - Última versión del código (SHA: ${{ github.sha }})
+            - Backend actualizado
+          draft: false
+          prerelease: false
+
+      - name: Upload APK to Release
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: apk/app-release.apk
+          asset_name: HereMobileApp-v${{ github.run_number }}.apk
+          asset_content_type: application/vnd.android.package-archive
