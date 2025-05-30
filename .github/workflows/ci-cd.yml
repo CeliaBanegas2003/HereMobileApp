@@ -56,32 +56,24 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:latest
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}
 
-  build-frontend:
-    name: Build & Push Frontend
+  build-mobile-app:
+    name: Build Mobile APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Debug - List root directory
-        run: ls -la
-
-      - name: Debug - Check if hereapp-frontend exists
-        run: |
-          if [ -d "hereapp-frontend" ]; then
-            echo "hereapp-frontend directory exists"
-            ls -la hereapp-frontend/
-          else
-            echo "hereapp-frontend directory does not exist"
-            echo "Available directories:"
-            find . -maxdepth 2 -type d
-          fi
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      - name: Set up Java for Android
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v3
@@ -95,18 +87,7 @@ jobs:
       - name: Install dependencies
         working-directory: hereapp-frontend
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Contents of current directory:"
-          ls -la
-          echo "Checking for pubspec.yaml:"
-          if [ -f "pubspec.yaml" ]; then
-            echo "pubspec.yaml found!"
-            cat pubspec.yaml
-          else
-            echo "pubspec.yaml NOT found!"
-            echo "Looking for pubspec.yaml in parent directories:"
-            find .. -name "pubspec.yaml" -type f
-          fi
+          echo "Installing Flutter dependencies..."
           flutter pub get
 
       - name: Analyze Flutter code
@@ -117,44 +98,70 @@ jobs:
         working-directory: hereapp-frontend
         run: flutter test
 
-      - name: Build web
+      - name: Build APK
         working-directory: hereapp-frontend
         run: |
-          echo "Building Flutter web..."
-          flutter build web --release --web-renderer html
-          echo "Build completed. Contents of build/web:"
-          ls -la build/web/
+          echo "Building Android APK..."
+          flutter build apk --release
+          echo "APK built successfully!"
+          ls -la build/app/outputs/flutter-apk/
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          name: heremobileapp-${{ github.sha }}
+          path: hereapp-frontend/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build & Push Frontend Image
-        uses: docker/build-push-action@v5
+      - name: Create Release (only on main branch)
+        if: github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          context: hereapp-frontend
-          file: hereapp-frontend/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/heremobileapp-frontend:latest
-            ${{ secrets.DOCKER_USERNAME }}/heremobileapp-frontend:${{ github.sha }}
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            🚀 Nueva versión de HereMobileApp
+            
+            **Cambios incluidos:**
+            - Backend actualizado (SHA: ${{ github.sha }})
+            - APK móvil actualizado
+            
+            **Descargas:**
+            - APK para Android disponible como artefacto
+            - Imagen Docker del backend: `${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}`
+          draft: false
+          prerelease: false
 
-  deploy:
-    name: Deploy to Production
-    needs: [build-backend, build-frontend]
+  deploy-backend:
+    name: Deploy Backend
+    needs: [build-backend]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy with Docker Compose
+      - name: Deploy Backend
         run: |
-          echo "Deployment step - aquí puedes añadir tu lógica de despliegue"
-          echo "Por ejemplo, usar docker-compose con las nuevas imágenes"
+          echo "🚀 Desplegando backend..."
+          echo "Imagen Docker: ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}"
+          echo "Aquí puedes añadir tu lógica de despliegue específica"
+          # Por ejemplo:
+          # - Desplegar a AWS ECS
+          # - Actualizar Kubernetes
+          # - Usar docker-compose en servidor
+          # - Etc.
+
+  notify-success:
+    name: Notify Success
+    needs: [build-backend, build-mobile-app, deploy-backend]
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Success Notification
+        run: |
+          echo "¡Despliegue completado exitosamente!"
+          echo "APK disponible en: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "Backend desplegado con imagen: ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}"

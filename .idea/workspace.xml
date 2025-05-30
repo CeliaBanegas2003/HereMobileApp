@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue prueba con pubsec 3">
-      <change afterPath="$PROJECT_DIR$/hereapp-frontend/hereapp-frontend/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hereapp-frontend/hereapp-frontend/nginx.conf" afterDir="false" />
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Despliegue corregido para el frontend">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci-cd.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -322,6 +321,7 @@
     <MESSAGE value="Despliegue prueba con pubsec" />
     <MESSAGE value="Despliegue prueba con pubsec 2" />
     <MESSAGE value="Despliegue prueba con pubsec 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="Despliegue prueba con pubsec 3" />
+    <MESSAGE value="Despliegue corregido para el frontend" />
+    <option name="LAST_COMMIT_MESSAGE" value="Despliegue corregido para el frontend" />
   </component>
 </project>
