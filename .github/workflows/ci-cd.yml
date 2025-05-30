@@ -110,7 +110,8 @@ jobs:
         working-directory: hereapp-frontend
         run: |
           echo "Building Android APK..."
-          flutter build apk --release
+          # Build APK sin firma para CI/CD
+          flutter build apk --release --no-shrink
           echo "APK built successfully!"
           ls -la build/app/outputs/flutter-apk/
 
