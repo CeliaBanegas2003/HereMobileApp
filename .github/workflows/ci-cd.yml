@@ -85,13 +85,28 @@ jobs:
           mkdir -p apk
           cp hereapp-frontend/build/app/outputs/flutter-apk/app-debug.apk apk/app-release.apk
           
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add apk/app-release.apk
+          # Verificar tamaño del APK
+          APK_SIZE=$(stat -c%s apk/app-release.apk)
+          echo "APK size: $APK_SIZE bytes"
           
-          if git diff --staged --quiet; then
-            echo "No changes to APK"
+          if [ $APK_SIZE -gt 90000000 ]; then
+            echo "APK is too large for GitHub (>90MB), uploading as artifact only"
           else
-            git commit -m "Update APK [skip ci]"
-            git push
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add apk/app-release.apk
+          
+            if git diff --staged --quiet; then
+              echo "No changes to APK"
+            else
+              git commit -m "Update APK [skip ci]"
+              git push
+            fi
           fi
+
+      - name: Upload APK as artifact (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: heremobileapp-apk-${{ github.sha }}
+          path: apk/app-release.apk
+          retention-days: 30
