@@ -55,6 +55,32 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:latest
             ${{ secrets.DOCKER_USERNAME }}/heremobileapp-backend:${{ github.sha }}
 
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Build Web App
+        working-directory: hereapp-frontend
+        run: |
+          flutter pub get
+          flutter build web --release --web-renderer html
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: hereapp-frontend/build/web
+
   build-apk:
     name: Build APK
     runs-on: ubuntu-latest
@@ -78,7 +104,8 @@ jobs:
           echo "storeFile=debug.keystore" >> android/key.properties
           
           flutter pub get
-          # Build APK optimizado para tamaño
+          # Limpiar build anterior para evitar conflictos
+          flutter clean
           flutter build apk --debug --target-platform android-arm64
 
       - name: Update APK in repo
@@ -128,10 +155,7 @@ jobs:
             1. Descarga el APK desde abajo
             2. Permite "Instalar apps de fuentes desconocidas" en Configuración
             3. Abre el archivo descargado e instala
-            
-            **Cambios incluidos:**
-            - Última versión del código (SHA: ${{ github.sha }})
-            - Backend actualizado
+
           draft: false
           prerelease: false
 
