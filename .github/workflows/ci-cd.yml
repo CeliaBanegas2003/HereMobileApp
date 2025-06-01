@@ -122,7 +122,7 @@ jobs:
           tag_name: v${{ github.run_number }}
           release_name: HereMobileApp v${{ github.run_number }}
           body: |
-            🚀 Nueva versión de HereMobileApp
+            HereMobileApp!
             
             📱 **Para instalar en Android:**
             1. Descarga el APK desde abajo
