@@ -1,0 +1,7 @@
+services:
+  - name: here-mobile-backend
+    type: web
+    env: docker
+    dockerfilePath: hereapp-backend/Dockerfile
+    branch: main
+    port: 8083

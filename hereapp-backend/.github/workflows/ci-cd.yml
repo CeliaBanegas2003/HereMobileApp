@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      # 2. Configurar JDK 21 para el backend
+      - name: Set up Java 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      # 3. Ejecutar Maven para el backend
+      - name: Build Frontend with Maven in Production Mode
+        working-directory: ./frontend_lectorNFC
+        run: mvn clean package -Pproduction
+      # 4. Construir imagen Docker para el backend
+      - name: Build Docker image for Frontend
+        working-directory: ./frontend_lectorNFC
+        run: |
+          IMAGE_TAG=${GITHUB_SHA:0:7}
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_USERNAME }}/frontend_lectornfc:${IMAGE_TAG} .
+      # 5. Iniciar sesión en Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      # 6. Empujar la imagen Docker del backend
+      - name: Push Docker image for Frontend
+        run: |
+          IMAGE_TAG=${GITHUB_SHA:0:7}
+          docker push ${{ secrets.DOCKER_USERNAME }}/frontend_lectornfc:${IMAGE_TAG}
+  
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      # 2. Configurar JDK 21 para el backend
+      - name: Set up Java 21 for Backend
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build Backend with Maven
+        working-directory: ./backend_lectorNFC
+        run: mvn clean package
+
+      - name: Build Docker image for Backend
+        working-directory: ./backend_lectorNFC
+        run: |
+          IMAGE_TAG=${GITHUB_SHA:0:7}
+          docker build --platform linux/amd64 -t ${{ secrets.DOCKER_USERNAME }}/backend_lectornfc:${IMAGE_TAG} .
+      
+
+      - name: Log in to Docker Hub for Backend
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker image for Backend
+        run: |
+          IMAGE_TAG=${GITHUB_SHA:0:7}
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend_lectornfc:${IMAGE_TAG}
+      
