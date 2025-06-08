@@ -50,7 +50,7 @@ public class HorarioBBDD {
     }
 
     /**
-     * Obtiene todos los horarios de un profesor
+     * Obtiene todos los horarios de un profesor con id profesor
      */
     public List<Map<String, Object>> obtenerHorariosProfesor(Integer profesorId) {
         String sql = """
