@@ -1,5 +1,4 @@
 # Here! - Aplicación Móvil / Sistema de Control de Asistencia NFC
-- [Manual de Usuario - Aplicación Web](./docs/manual-usuario-web.md)
 
 > **Autor**: Celia Banegas Banegas
 
@@ -39,6 +38,12 @@ HereMobileApp es un sistema completo que automatiza el registro de asistencia en
 - **GitHub Actions**: CI/CD
 - **AWS RDS**: Base de datos en la nube
 - **Render**: Hosting y despliegue
+
+### 📱 [Manual de Instalación](./docs/manual-instalacion.md)
+Guía completa para instalar y configurar la aplicación móvil en Android e iOS.
+
+### 👤 [Manual de Usuario - Aplicación Móvil](./docs/manual-usuario-movil.md)
+Instrucciones detalladas de uso para estudiantes, profesores y administradores.
 
 ## 📱 Instalación de la Aplicación Móvil
 
