@@ -83,7 +83,7 @@ Configuración > Conexiones > NFC (debe estar habilitado)
 2. **Abrir la aplicación** e iniciar sesión con credenciales válidas
 3. **Comenzar a usar** el sistema inmediatamente
 
-**URL del Backend:** `https://hereapp-backend.onrender.com`
+**URL del Backend:** `[https://hereapp-backend.onrender.com](https://backend-lectornfc-0-0-1-snapshot.onrender.com)`
 - ✅ Base de datos configurada
 - ✅ APIs REST operativas  
 - ✅ Sistema de autenticación activo
