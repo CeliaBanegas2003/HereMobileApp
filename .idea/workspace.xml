@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Funciona para backend">
+    <list default="true" id="7cd10fea-cb50-4cdc-8854-8f60481fd648" name="Changes" comment="Backend con cherry pick">
+      <change afterPath="$PROJECT_DIR$/docs/manual-instalacion.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/manual-usuario-movil.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,6 +156,7 @@
       <workItem from="1748961836087" duration="664000" />
       <workItem from="1749390219827" duration="1000" />
       <workItem from="1749390241253" duration="20000" />
+      <workItem from="1749658190126" duration="1082000" />
     </task>
     <task id="LOCAL-00001" summary="frontend incluido">
       <option name="closed" value="true" />
@@ -370,7 +374,87 @@
       <option name="project" value="LOCAL" />
       <updated>1748797876167</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Ya tengo el código funcionando">
+      <option name="closed" value="true" />
+      <created>1749391074457</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391074457</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Recuperación del backend">
+      <option name="closed" value="true" />
+      <created>1749391106779</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391106779</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Separacion por métodos del backend">
+      <option name="closed" value="true" />
+      <created>1749391478785</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391478785</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Cambios en el backend">
+      <option name="closed" value="true" />
+      <created>1749391497825</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391497825</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Clases faltantes">
+      <option name="closed" value="true" />
+      <created>1749391578498</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391578498</updated>
+    </task>
+    <task id="LOCAL-00033" summary="no está completo el backend">
+      <option name="closed" value="true" />
+      <created>1749391589049</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391589049</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Backend completo">
+      <option name="closed" value="true" />
+      <created>1749391675770</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391675770</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Cambios en el backend">
+      <option name="closed" value="true" />
+      <created>1749391799887</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391799887</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Separacion por métodos del backend">
+      <option name="closed" value="true" />
+      <created>1749391862738</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391862738</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Backend con cherry pick">
+      <option name="closed" value="true" />
+      <created>1749391900122</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1749391900122</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -389,15 +473,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Despliegue completo" />
-    <MESSAGE value="Apk accesible" />
-    <MESSAGE value="Ci-DC" />
-    <MESSAGE value="Despliegue prueba" />
-    <MESSAGE value="Despliegue prueba2" />
-    <MESSAGE value="Despliegue prueba3" />
-    <MESSAGE value="Despliegue prueba4" />
-    <MESSAGE value="Despliegue prueba5" />
-    <MESSAGE value="Despliegue prueba6" />
     <MESSAGE value="Despliegue prueba7" />
     <MESSAGE value="Frontend correcto" />
     <MESSAGE value="Despliegue prueba con pubsec" />
@@ -414,6 +489,15 @@
     <MESSAGE value="funcion el apk con GitHub Releases 2" />
     <MESSAGE value="funcion el apk con GitHub Releases funcionando" />
     <MESSAGE value="Funciona para backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="Funciona para backend" />
+    <MESSAGE value="Cambios locales antes del cherry-pick" />
+    <MESSAGE value="Ya tengo el código funcionando" />
+    <MESSAGE value="Recuperación del backend" />
+    <MESSAGE value="Clases faltantes" />
+    <MESSAGE value="no está completo el backend" />
+    <MESSAGE value="Backend completo" />
+    <MESSAGE value="Cambios en el backend" />
+    <MESSAGE value="Separacion por métodos del backend" />
+    <MESSAGE value="Backend con cherry pick" />
+    <option name="LAST_COMMIT_MESSAGE" value="Backend con cherry pick" />
   </component>
 </project>
