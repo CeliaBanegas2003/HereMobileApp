@@ -47,5 +47,5 @@ Instrucciones detalladas de uso para estudiantes, profesores y administradores.
 
 ## 📄 Licencia
 
-Distributed under the **MIT License**. Consulta el archivo `LICENSE` para más detalles.
+Distributed under the **MIT License**. 
 
