@@ -45,3 +45,7 @@ Guía completa para instalar y configurar la aplicación móvil en Android e iOS
 ### 👤 [Manual de Usuario - Aplicación Móvil](./docs/manual-usuario-movil.md)
 Instrucciones detalladas de uso para estudiantes, profesores y administradores.
 
+## 📄 Licencia
+
+Distributed under the **MIT License**. Consulta el archivo `LICENSE` para más detalles.
+
